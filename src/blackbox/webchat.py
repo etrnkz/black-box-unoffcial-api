@@ -18,13 +18,14 @@ class WebChatResponse:
 class WebChat:
     APP_URL = "https://app.blackbox.ai"
 
-    def __init__(self, session_token: Optional[str] = None):
-        cookies: dict[str, str] = {}
-        if session_token:
-            cookies["__Secure-next-auth.session-token"] = session_token
-
+    def __init__(
+        self,
+        cookie_header: Optional[str] = None,
+        validated: Optional[str] = None,
+        user_email: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ):
         self._client = httpx.Client(
-            cookies=cookies,
             timeout=120.0,
             headers={
                 "user-agent": (
@@ -35,14 +36,10 @@ class WebChat:
             },
             follow_redirects=True,
         )
-        self._session_initialized = False
-
-    def _init_session(self):
-        if self._session_initialized:
-            return
-        self._client.get(f"{self.APP_URL}/chat")
-        self._client.get(f"{self.APP_URL}/api/auth/csrf")
-        self._session_initialized = True
+        self._cookie_header = cookie_header
+        self._validated = validated or str(uuid.uuid4())
+        self._user_email = user_email
+        self._user_id = user_id
 
     def _build_body(
         self,
@@ -90,7 +87,7 @@ class WebChat:
             "mobileClient": False,
             "userSelectedModel": model,
             "userSelectedAgent": agent,
-            "validated": str(uuid.uuid4()),
+            "validated": self._validated,
             "imageGenerationMode": image,
             "imageGenMode": "autoMode" if image else "autoMode",
             "webSearchModePrompt": search,
@@ -104,10 +101,36 @@ class WebChat:
                 "additionalInfo": "", "enableNewChats": False,
             },
             "webSearchModeOption": web_search_mode,
-            "session": None,
+            "session": (
+                {
+                    "user": {"email": self._user_email, "id": self._user_id},
+                    "expires": "2026-06-29T13:17:02.109Z",
+                    "isNewUser": False,
+                }
+                if self._user_email
+                else None
+            ),
             "isPremium": False,
-            "teamAccount": "",
-            "subscriptionCache": None,
+            "teamAccount": self._user_email or "",
+            "subscriptionCache": (
+                {
+                    "status": "FREE",
+                    "customerId": None,
+                    "expiryTimestamp": None,
+                    "lastChecked": 1780147021751,
+                    "isTrialSubscription": False,
+                    "hasPaymentVerificationFailure": False,
+                    "verificationFailureTimestamp": None,
+                    "requiresAuthentication": False,
+                    "isTeam": False,
+                    "numSeats": 1,
+                    "provider": "stripe",
+                    "previouslySubscribed": False,
+                    "activeInsuffientCredits": False,
+                }
+                if self._user_email
+                else None
+            ),
             "beastMode": beast,
             "reasoningMode": reasoning,
             "designerMode": designer,
@@ -118,7 +141,7 @@ class WebChat:
         }
 
     def _chat_headers(self) -> dict[str, str]:
-        return {
+        headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9",
             "cache-control": "no-cache",
@@ -134,6 +157,9 @@ class WebChat:
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
         }
+        if self._cookie_header:
+            headers["cookie"] = self._cookie_header
+        return headers
 
     def _parse_sse(self, text: str) -> WebChatResponse:
         result = WebChatResponse()
@@ -185,7 +211,6 @@ class WebChat:
         interpreter: bool = False,
         max_tokens: int = 1024,
     ) -> WebChatResponse:
-        self._init_session()
         body = self._build_body(
             message=message,
             agent=agent,
@@ -224,7 +249,6 @@ class WebChat:
         interpreter: bool = False,
         max_tokens: int = 1024,
     ):
-        self._init_session()
         body = self._build_body(
             message=message,
             agent=agent,

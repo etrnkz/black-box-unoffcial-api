@@ -104,8 +104,16 @@ def cmd_video(args):
 
 # --- Web-based commands (app.blackbox.ai/api/chat) ---
 
+def _webclient(args):
+    return BlackBoxClient(
+        cookie_header=getattr(args, "cookie_header", None),
+        validated=getattr(args, "validated", None),
+        user_email=getattr(args, "user_email", None),
+        user_id=getattr(args, "user_id", None),
+    )
+
 def cmd_webchat(args):
-    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+    with _webclient(args) as client:
         result = client.web_chat(
             args.message,
             agent=getattr(args, "agent", "VscodeAgent"),
@@ -124,7 +132,7 @@ def cmd_webchat(args):
 
 
 def cmd_websearch(args):
-    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+    with _webclient(args) as client:
         result = client.web_search(args.query, deep=args.deep)
         print(result.content)
         if result.sources:
@@ -134,19 +142,19 @@ def cmd_websearch(args):
 
 
 def cmd_webcode(args):
-    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+    with _webclient(args) as client:
         result = client.web_generate_code(args.prompt, language=args.language)
         print(result.content)
 
 
 def cmd_webimage(args):
-    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+    with _webclient(args) as client:
         result = client.web_generate_image(args.prompt, model=args.model)
         print(result.content)
 
 
 def cmd_webvideo(args):
-    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+    with _webclient(args) as client:
         result = client.web_generate_video(args.prompt, model=args.model)
         print(result.content)
 
@@ -237,7 +245,10 @@ def main(argv: list[str] | None = None):
         description="Unofficial blackbox.ai API client",
     )
     parser.add_argument("--api-key", help="Blackbox API key (sk-...)")
-    parser.add_argument("--session", help="Session token for cookie auth")
+    parser.add_argument("--cookie-header", help="Raw Cookie header for web endpoint auth")
+    parser.add_argument("--validated", help="Validated UUID for web endpoint (from browser network tab)")
+    parser.add_argument("--user-email", help="User email (for web endpoint session body)")
+    parser.add_argument("--user-id", help="User ID (for web endpoint session body)")
 
     sub = parser.add_subparsers(dest="command")
 

@@ -18,9 +18,9 @@ class TestClientInit:
         assert client.api_key == "sk-test"
         client.close()
 
-    def test_with_session(self):
-        client = BlackBoxClient(session_token="test-session")
-        assert client._http.cookies.get("__Secure-next-auth.session-token") == "test-session"
+    def test_with_cookies(self):
+        client = BlackBoxClient(cookie_header="test=cookie")
+        assert client._cookie_header == "test=cookie"
         client.close()
 
     def test_with_proxy(self):

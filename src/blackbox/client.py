@@ -35,23 +35,24 @@ class BlackBoxClient:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        session_token: Optional[str] = None,
+        cookie_header: Optional[str] = None,
+        validated: Optional[str] = None,
+        user_email: Optional[str] = None,
+        user_id: Optional[str] = None,
         timeout: float = 30.0,
         proxy: Optional[str] = None,
     ):
         self.api_key = api_key
-        self._session_token = session_token
-
-        cookies: dict[str, str] = {}
-        if session_token:
-            cookies["__Secure-next-auth.session-token"] = session_token
+        self._cookie_header = cookie_header
+        self._validated = validated
+        self._user_email = user_email
+        self._user_id = user_id
 
         transport = None
         if proxy:
             transport = httpx.HTTPTransport(proxy=proxy)
 
         self._http = httpx.Client(
-            cookies=cookies,
             timeout=timeout,
             transport=transport,
             headers={
@@ -305,6 +306,14 @@ class BlackBoxClient:
 
     # --- Web Chat (app.blackbox.ai/api/chat) ---
 
+    def _webchat_kwargs(self) -> dict:
+        return {
+            "cookie_header": self._cookie_header,
+            "validated": self._validated,
+            "user_email": self._user_email,
+            "user_id": self._user_id,
+        }
+
     def web_chat(
         self,
         message: str,
@@ -321,8 +330,7 @@ class BlackBoxClient:
         interpreter: bool = False,
         max_tokens: int = 1024,
     ) -> WebChatResponse:
-        session_token = self._get_session_token()
-        with WebChat(session_token=session_token) as wc:
+        with WebChat(**self._webchat_kwargs()) as wc:
             return wc.chat(
                 message=message,
                 agent=agent,
@@ -344,8 +352,7 @@ class BlackBoxClient:
         deep: bool = False,
         max_tokens: int = 1024,
     ) -> WebChatResponse:
-        session_token = self._get_session_token()
-        with WebChat(session_token=session_token) as wc:
+        with WebChat(**self._webchat_kwargs()) as wc:
             return wc.search(query=query, deep=deep, max_tokens=max_tokens)
 
     def web_generate_code(
@@ -354,8 +361,7 @@ class BlackBoxClient:
         language: Optional[str] = None,
         max_tokens: int = 2048,
     ) -> WebChatResponse:
-        session_token = self._get_session_token()
-        with WebChat(session_token=session_token) as wc:
+        with WebChat(**self._webchat_kwargs()) as wc:
             return wc.generate_code(prompt=prompt, language=language, max_tokens=max_tokens)
 
     def web_generate_image(
@@ -363,8 +369,7 @@ class BlackBoxClient:
         prompt: str,
         model: Optional[str] = None,
     ) -> WebChatResponse:
-        session_token = self._get_session_token()
-        with WebChat(session_token=session_token) as wc:
+        with WebChat(**self._webchat_kwargs()) as wc:
             return wc.generate_image(prompt=prompt, model=model)
 
     def web_generate_video(
@@ -372,12 +377,8 @@ class BlackBoxClient:
         prompt: str,
         model: Optional[str] = None,
     ) -> WebChatResponse:
-        session_token = self._get_session_token()
-        with WebChat(session_token=session_token) as wc:
+        with WebChat(**self._webchat_kwargs()) as wc:
             return wc.generate_video(prompt=prompt, model=model)
-
-    def _get_session_token(self) -> Optional[str]:
-        return getattr(self, "_session_token", None)
 
     def close(self):
         self._http.close()
