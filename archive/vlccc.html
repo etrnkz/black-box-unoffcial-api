@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VLC.js Player - Open Local Files</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    #vlc-container {
+      width: 80%;
+      height: 500px;
+      margin: 0 auto;
+      border: 2px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>VLC.js Video Player</h1>
+  <p>Choose a .mkv or .avi video file from your device:</p>
+
+  <!-- File input for local video selection -->
+  <input type="file" id="fileInput" accept=".mkv,.avi" />
+
+  <!-- VLC.js Player Container -->
+  <div id="vlc-container"></div>
+
+  <!-- VLC.js Script -->
+  <script src="https://cdn.jsdelivr.net/npm/vlc.js@0.1.3/vlc.min.js"></script>
+
+  <script>
+    // Wait for the document to be fully loaded before initializing VLC.js
+    document.addEventListener("DOMContentLoaded", function() {
+      
+      // Ensure VLC.js is loaded and the VLC object is available
+      if (typeof VLC === "undefined") {
+        console.error("VLC.js is not loaded properly.");
+        return;
+      }
+      
+      // Initialize VLC player
+      var vlcPlayer = new VLC();
+      
+      // Set VLC player options (for example, enabling controls and fullscreen)
+      vlcPlayer.setOption("fullscreen", true);
+      vlcPlayer.setOption("autoplay", true);
+      vlcPlayer.setOption("controls", true);
+      
+      // Define the video container element where the player will render
+      var videoContainer = document.getElementById("vlc-container");
+
+      // Get the file input element for video selection
+      var fileInput = document.getElementById("fileInput");
+
+      // Event listener for file selection
+      fileInput.addEventListener("change", function(event) {
+        var file = event.target.files[0];
+
+        // If a valid file is selected, create a URL for the file and play it
+        if (file) {
+          var fileURL = URL.createObjectURL(file); // Create an object URL for the selected file
+          vlcPlayer.play(fileURL, videoContainer); // Play the selected file in VLC.js player
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>

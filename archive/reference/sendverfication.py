@@ -1,0 +1,18 @@
+curl 'https://app.blackbox.ai/api/auth/send-verification' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -b '_ga=GA1.1.699683413.1772302581; _fbp=fb.1.1772302586409.362407411255151333; _ga_GT1DBDTYYS=GS2.1.s1772307572$o2$g1$t1772307666$j29$l0$h0; __Host-authjs.csrf-token=1bbab7a3483df6048374c56639d6946bad03622e6e52eb9283d1cdf63e289b77%7C53080def1eb806fad45d9ad5c44c4a7befefaf3aa882c553cc15b2cdb17c3d01; __Secure-authjs.callback-url=https%3A%2F%2Fapp.blackbox.ai; sessionId=ea09f63d-87bc-459e-9988-c6b2b985ffca; userCountry=%7B%22country%22%3A%22US%22%2C%22currency%22%3A%22USD%22%2C%22timestamp%22%3A1772307688754%2C%22expires%22%3A1772912488754%7D; __stripe_mid=7a88e364-50f2-4411-a83d-fc8278f6a28bb2ff7f; intercom-id-x55eda6t=96910747-8b11-44c4-bccb-b8dbce973ca2; intercom-session-x55eda6t=; intercom-device-id-x55eda6t=93695cb9-06d5-44c0-8cd1-63097b1ac25f; _gcl_au=1.1.755213508.1772302581.1892778051.1772307900.1772307918; ph_phc_9T0rgpbTO2ItkwbH8HNZuavYKcQ3h3wxzJwELM6JHV4_posthog=%7B%22%24device_id%22%3A%22019ca5c4-403f-75fd-88dc-7aaba6dc2a92%22%2C%22distinct_id%22%3A%22019ca5c4-403f-75fd-88dc-7aaba6dc2a92%22%2C%22%24sesid%22%3A%5B1772311180566%2C%22019ca5fa-51be-7b51-9a4e-898906efebb0%22%2C1772311171517%5D%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Fwww.blackbox.ai%2Fchat%22%7D%2C%22%24user_state%22%3A%22anonymous%22%7D' \
+  -H 'origin: https://app.blackbox.ai' \
+  -H 'pragma: no-cache' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://app.blackbox.ai/' \
+  -H 'sec-ch-ua: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36' \
+  --data-raw '{"email":"regex81680@pazuric.com"}'

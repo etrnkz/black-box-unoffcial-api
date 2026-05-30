@@ -1,0 +1,15 @@
+curl 'https://builder.blackbox.ai/api/credits/get' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -b '_gcl_au=1.1.755213508.1772302581; _ga=GA1.1.699683413.1772302581; _fbp=fb.1.1772302586409.362407411255151333; _ga_GT1DBDTYYS=GS2.1.s1772302581$o1$g1$t1772302608$j33$l0$h0; __Host-next-auth.csrf-token=7597649ff7d5e8ea0ed38d8fc7d7ff857481db82720f385b8534316cc125b00d%7C462c7e7af5d34c185204ee840d5fbf4143ecce0f458bf776103ff7fcbca71b6e; __stripe_mid=ede11600-9560-495a-8479-ac4762203a7b5b761a; __Secure-next-auth.callback-url=https%3A%2F%2Fbuilder.blackbox.ai%2F; __Secure-next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoic0RwT0REMWZxdnJEdGZCRkNGUkJRTV9uZDhkSkNVVUNJcG9reFM3Rms3eXJMekM5VWVvRl9uTXctbTdDUWFVTHVSdTZaNVd4dkppSlB5b0RsRFFZWlEifQ..hR1ysm7DFL6Ks3Eg7QaFWg.-SYJ2HuXQBrdtWCxzQOXRkx4V_QIo9vLA3AquPmHK84EbiTMxxpyR5tsh2VsIm8Ce1lm9BKNlevUyK0BvzsqiP6pZhbXvuE4FAOeIf-RSBNARKe0dJXKOTLHbC70UN8NTMutHEGVDfRt4Em6o9groWUTDSZ0465gll3h1cGWtJkyMfV1a7zBDNeYZ6ripi39fix4Vt_p9lfcshf7oMAvJFwFP2VuF3ZG817DJPQt37uF9UflVrpXmiMpc-apdwn7NK4ivnpVeDuOh0MXb931qYcqylGsovilQgp06qQ8Fvw9l_Xq1bAXmK6KwY_UYqJriPadx3MhSjxIoYGJkbH9RDeKF-wiaUzCNrg3dej-nY4.SLd7CiYo0snFwo9Sov5F580-RT1MWtL0NH4r_Yw77vE' \
+  -H 'pragma: no-cache' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://builder.blackbox.ai/' \
+  -H 'sec-ch-ua: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36'

@@ -1,0 +1,16 @@
+curl 'https://builder.blackbox.ai/api/auth/session' \
+  -H 'accept: */*' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/json' \
+  -b '_gcl_au=1.1.755213508.1772302581; _ga=GA1.1.699683413.1772302581; _fbp=fb.1.1772302586409.362407411255151333; _ga_GT1DBDTYYS=GS2.1.s1772302581$o1$g1$t1772302608$j33$l0$h0; __Host-next-auth.csrf-token=7597649ff7d5e8ea0ed38d8fc7d7ff857481db82720f385b8534316cc125b00d%7C462c7e7af5d34c185204ee840d5fbf4143ecce0f458bf776103ff7fcbca71b6e; __stripe_mid=ede11600-9560-495a-8479-ac4762203a7b5b761a; __stripe_sid=4911f2e8-2363-4efb-b0f3-b913d635d310cdb914; __Secure-next-auth.callback-url=https%3A%2F%2Fbuilder.blackbox.ai%2F; __Secure-next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoic0RwT0REMWZxdnJEdGZCRkNGUkJRTV9uZDhkSkNVVUNJcG9reFM3Rms3eXJMekM5VWVvRl9uTXctbTdDUWFVTHVSdTZaNVd4dkppSlB5b0RsRFFZWlEifQ..kYz3vAQHgzGEMVk3L44yyA.TqFHHV9BI08yEPTKG-VgsH09XBVLavVDk71dQGOLM68tu29W1XI7ykd9VF8eqp73gzTiO4gPRTDKLjX5eAIQiKj0JEqtUsmQTKfooUcIXQEwFXfMBTcVD2q4V7tI9Q_qfimAiGHRtcvHpGWs4XyERcfe1XpWcaVyKdFo6U5NUJP5ZAzkJXP0Ci_4n8AZzjgG1ryj8gd-Kij0F1N9aSvdaEM8x7e8MxedFchpMb7U4l2fgMz2eFiM7Rgje67DDlM9uIs98Fpwv1bHezmB6BXu_weBOoJuydePGFuCczYbaqYNeIJOJppUPft-4N8774cjApR5PPKvDhHWEAXYdZ1RhqYIBI4ismUFu8rI_1iVOLo.fPkEHIbuZPZHOQdOg3KHIlipsztmDQb-G4sIYTgpWBw' \
+  -H 'pragma: no-cache' \
+  -H 'priority: u=1, i' \
+  -H 'referer: https://builder.blackbox.ai/' \
+  -H 'sec-ch-ua: "Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'sec-fetch-dest: empty' \
+  -H 'sec-fetch-mode: cors' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36'
