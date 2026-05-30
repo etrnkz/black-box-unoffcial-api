@@ -8,6 +8,7 @@ from .chat import Chat
 from .code import CodeGen
 from .credits import Credits
 from .image import ImageGen
+from .webchat import WebChat, WebChatResponse
 from .models import (
     AgentConfig,
     AgentExecution,
@@ -39,6 +40,7 @@ class BlackBoxClient:
         proxy: Optional[str] = None,
     ):
         self.api_key = api_key
+        self._session_token = session_token
 
         cookies: dict[str, str] = {}
         if session_token:
@@ -300,6 +302,82 @@ class BlackBoxClient:
 
     def get_multi_agent_task(self, task_id: str) -> MultiAgentTask:
         return self.agents.get_task(task_id)
+
+    # --- Web Chat (app.blackbox.ai/api/chat) ---
+
+    def web_chat(
+        self,
+        message: str,
+        *,
+        agent: str = "VscodeAgent",
+        model: Optional[str] = None,
+        code: bool = False,
+        search: bool = False,
+        deep_search: bool = False,
+        reasoning: bool = False,
+        image: bool = False,
+        beast: bool = False,
+        designer: bool = False,
+        interpreter: bool = False,
+        max_tokens: int = 1024,
+    ) -> WebChatResponse:
+        session_token = self._get_session_token()
+        with WebChat(session_token=session_token) as wc:
+            return wc.chat(
+                message=message,
+                agent=agent,
+                model=model,
+                code=code,
+                search=search,
+                deep_search=deep_search,
+                reasoning=reasoning,
+                image=image,
+                beast=beast,
+                designer=designer,
+                interpreter=interpreter,
+                max_tokens=max_tokens,
+            )
+
+    def web_search(
+        self,
+        query: str,
+        deep: bool = False,
+        max_tokens: int = 1024,
+    ) -> WebChatResponse:
+        session_token = self._get_session_token()
+        with WebChat(session_token=session_token) as wc:
+            return wc.search(query=query, deep=deep, max_tokens=max_tokens)
+
+    def web_generate_code(
+        self,
+        prompt: str,
+        language: Optional[str] = None,
+        max_tokens: int = 2048,
+    ) -> WebChatResponse:
+        session_token = self._get_session_token()
+        with WebChat(session_token=session_token) as wc:
+            return wc.generate_code(prompt=prompt, language=language, max_tokens=max_tokens)
+
+    def web_generate_image(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+    ) -> WebChatResponse:
+        session_token = self._get_session_token()
+        with WebChat(session_token=session_token) as wc:
+            return wc.generate_image(prompt=prompt, model=model)
+
+    def web_generate_video(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+    ) -> WebChatResponse:
+        session_token = self._get_session_token()
+        with WebChat(session_token=session_token) as wc:
+            return wc.generate_video(prompt=prompt, model=model)
+
+    def _get_session_token(self) -> Optional[str]:
+        return getattr(self, "_session_token", None)
 
     def close(self):
         self._http.close()

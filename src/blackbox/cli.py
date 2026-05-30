@@ -102,6 +102,55 @@ def cmd_video(args):
             print("No video URL in response")
 
 
+# --- Web-based commands (app.blackbox.ai/api/chat) ---
+
+def cmd_webchat(args):
+    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+        result = client.web_chat(
+            args.message,
+            agent=getattr(args, "agent", "VscodeAgent"),
+            model=getattr(args, "model", None),
+            code=args.code,
+            search=args.search,
+            deep_search=args.deep_search,
+            reasoning=args.reasoning,
+            max_tokens=args.max_tokens or 1024,
+        )
+        print(result.content)
+        if result.sources:
+            print("\n--- Sources ---")
+            for s in result.sources:
+                print(f"  {s.get('title', 'Untitled')}: {s.get('url', '')}")
+
+
+def cmd_websearch(args):
+    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+        result = client.web_search(args.query, deep=args.deep)
+        print(result.content)
+        if result.sources:
+            print("\n--- Sources ---")
+            for s in result.sources:
+                print(f"  {s.get('title', 'Untitled')}: {s.get('url', '')}")
+
+
+def cmd_webcode(args):
+    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+        result = client.web_generate_code(args.prompt, language=args.language)
+        print(result.content)
+
+
+def cmd_webimage(args):
+    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+        result = client.web_generate_image(args.prompt, model=args.model)
+        print(result.content)
+
+
+def cmd_webvideo(args):
+    with BlackBoxClient(session_token=getattr(args, "session", None)) as client:
+        result = client.web_generate_video(args.prompt, model=args.model)
+        print(result.content)
+
+
 def cmd_models(args):
     with BlackBoxClient(api_key=getattr(args, "api_key", None)) as client:
         models = client.get_models()
@@ -247,6 +296,37 @@ def main(argv: list[str] | None = None):
     video_p.add_argument("prompt", help="Video prompt")
     video_p.add_argument("--model", default="veo-2", help="Video model (e.g. veo-2, veo-3, ray-2)")
 
+    # --- web chat ---
+    wc_p = sub.add_parser("webchat", help="Chat via web endpoint")
+    wc_p.add_argument("message", help="User message")
+    wc_p.add_argument("--agent", default="VscodeAgent", help="Agent to use")
+    wc_p.add_argument("--model", help="Model override")
+    wc_p.add_argument("--max-tokens", type=int, default=1024, help="Max tokens")
+    wc_p.add_argument("--code", action="store_true", help="Code generation mode")
+    wc_p.add_argument("--search", action="store_true", help="Web search mode")
+    wc_p.add_argument("--deep-search", action="store_true", help="Deep search mode")
+    wc_p.add_argument("--reasoning", action="store_true", help="Reasoning mode")
+
+    # --- web search ---
+    ws_p = sub.add_parser("websearch", help="Web search via web endpoint")
+    ws_p.add_argument("query", help="Search query")
+    ws_p.add_argument("--deep", action="store_true", help="Deep search")
+
+    # --- web code ---
+    wk_p = sub.add_parser("webcode", help="Generate code via web endpoint")
+    wk_p.add_argument("prompt", help="Code prompt")
+    wk_p.add_argument("--language", help="Target language")
+
+    # --- web image ---
+    wi_p = sub.add_parser("webimage", help="Generate image via web endpoint")
+    wi_p.add_argument("prompt", help="Image prompt")
+    wi_p.add_argument("--model", help="Image model")
+
+    # --- web video ---
+    wv_p = sub.add_parser("webvideo", help="Generate video via web endpoint")
+    wv_p.add_argument("prompt", help="Video prompt")
+    wv_p.add_argument("--model", help="Video model")
+
     args = parser.parse_args(argv)
 
     handlers = {
@@ -259,6 +339,11 @@ def main(argv: list[str] | None = None):
         "code": cmd_code,
         "image": cmd_image,
         "video": cmd_video,
+        "webchat": cmd_webchat,
+        "websearch": cmd_websearch,
+        "webcode": cmd_webcode,
+        "webimage": cmd_webimage,
+        "webvideo": cmd_webvideo,
     }
 
     fn = handlers.get(args.command)

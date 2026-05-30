@@ -27,6 +27,7 @@ from .models import (
     VideoGenerationResponse,
     UrlCitation,
 )
+from .webchat import WebChat, WebChatResponse
 
 __all__ = [
     "BlackBoxClient",
@@ -56,4 +57,6 @@ __all__ = [
     "Usage",
     "VideoGenerationResponse",
     "UrlCitation",
+    "WebChat",
+    "WebChatResponse",
 ]
