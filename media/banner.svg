@@ -17,10 +17,7 @@
   </g>
   <text x="170" y="72" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="white">BlackBox API</text>
   <text x="170" y="108" font-family="system-ui, sans-serif" font-size="16" fill="#a0a0b8">Unofficial Python client for blackbox.ai</text>
-  <g transform="translate(170,128)">
-    <rect x="0" y="0" rx="6" fill="#6366f1" opacity="0.2" width="310" height="28"/>
-    <text x="12" y="19" font-family="monospace" font-size="13" fill="#a5b4fc">pip install blackbox-unofficial-api</text>
-  </g>
+
   <g transform="translate(680,165)">
     <text font-family="monospace" font-size="10" fill="#4a4a6a">v0.1.0</text>
   </g>
