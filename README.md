@@ -121,26 +121,6 @@ python -m blackbox --cookie "..." reason "solve x"   # reasoning mode
 | Email login | `WebChat.login(email, password)` — logs in programmatically, stores cookies in session |
 | Validated UUID | Some features need a `validated` UUID. Extract from DevTools once — per-account, not per-session |
 
-## Project
-
-```
-src/blackbox/
-├── __init__.py    # Exports
-├── __main__.py    # python -m blackbox
-├── cli.py         # CLI (all web-first, no API key)
-├── webchat.py     # Web endpoint — full website reverse
-├── login.py       # NextAuth login (curl_cffi)
-├── files.py       # File upload utilities
-├── models.py      # Data classes
-├── chat.py        # API chat (optional, needs API key)
-├── client.py      # BlackBoxClient (optional, needs API key)
-├── auth.py        # Web auth helpers
-├── image.py       # Image gen via API
-├── code.py        # Code gen via API
-├── credits.py     # Credits via API
-└── agents.py      # Agents via API
-```
-
 ## License
 
 MIT &copy; [etrnkz](https://github.com/etrnkz/black-box-unoffcial-api)
