@@ -13,7 +13,7 @@
 <p align="center">
   <a href="#quick-start">Quick Start</a> •
   <a href="#at-a-glance">At a Glance</a> •
-  <a href="#docs">Docs</a> •
+  <a href="#examples">Examples</a> •
   <a href="#cli">CLI</a>
 </p>
 
@@ -22,9 +22,9 @@
 <p align="center">
   <strong>Unofficial Python client for blackbox.ai</strong>
   <br>
-  API key unlocks chat, search, images, video, agents — cookies for web auth.
+  No API key required — paste your browser cookies and go.
   <br>
-  Full OpenAI-compatible chat completions with 30+ documented parameters.
+  Or use an API key for the full OpenAI-compatible interface.
 </p>
 
 ---
@@ -35,6 +35,21 @@
 pip install httpx curl-cffi
 pip install -e .
 ```
+
+**Cookies from browser (no API key):**
+
+```python
+from blackbox import WebChat
+
+# Paste cookies from app.blackbox.ai DevTools → Network tab
+cookies = "session=abc; next-auth.session-token=xyz; ..."
+wc = WebChat(cookie_header=cookies, validated="your-uuid")
+
+result = wc.chat("What is the capital of France?")
+print(result.content)
+```
+
+**API key:**
 
 ```python
 from blackbox import BlackBoxClient, ChatMessage
@@ -47,37 +62,60 @@ result = client.chat_complete(
 print(result.content)
 ```
 
+**Automated login (gets cookies for you):**
+
+```python
+from blackbox import WebChat
+
+wc = WebChat.login(email="user@example.com", password="...")
+result = wc.chat("Hello after login")
+```
+
 ## At a Glance
 
 | Area | Methods | Auth |
 |------|---------|------|
-| Chat | `chat_complete`, `chat_complete_stream` | API key |
-| Search | `search` (with source citations) | API key |
-| Image | `generate_image`, `generate_image_chat` | API key |
-| Video | `generate_video` (Veo-2, Ray-2, etc.) | API key |
-| Code | `generate_code` | API key |
+| Chat | `web_chat`, `web_chat_stream` | cookie |
+| Search | `web_search`, `web_search_stream` | cookie |
+| Code | `web_generate_code` | cookie |
+| Image | `web_generate_image` | cookie |
+| Video | `web_generate_video` | cookie |
+| Files | `chat_with_file`, `FileContentPart` | cookie |
+| Login | `WebChat.login` | email/password |
+| API Chat | `chat_complete`, `chat_complete_stream` | API key |
+| API Image | `generate_image` (Flux, Ideogram) | API key |
+| API Video | `generate_video` (Veo-2, Ray-2) | API key |
 | Tools | function calling, tool_choice, reasoning | API key |
-| Files | `chat_with_file`, `read_file`, `FileContentPart` | API key |
-| Agents | `create_agent`, `list_agents`, `execute_agent` | API key |
-| Multi-Agent | `create_multi_agent_task` (parallel) | API key |
-| Web Chat | `web_chat`, `web_search`, `web_generate_*` | cookie |
-| Login | `login` (NextAuth flow) | email/password |
-| Account | `get_session`, `get_credits`, `get_models` | API key / cookie |
+| Agents | CRUD + execute single agents | API key |
+| Multi-Agent | parallel task orchestration | API key |
+| Account | session info, credits, models | API key |
 
 ## Examples
 
 ```python
-# Search with sources
-result = client.search("latest AI news")
+# Web chat with browser cookies
+from blackbox import WebChat
+
+wc = WebChat(cookie_header="session=abc; ...", validated="a38f5889-...")
+result = wc.chat("Explain quantum computing")
 print(result.content)
 
-# Image generation
-img = client.generate_image("a cat in space", model="flux-pro")
-print(img.data[0].url)
+# Search with sources
+result = wc.search("Python 3.14 new features")
+for s in result.sources:
+    print(f"  {s['title']}: {s['url']}")
 
-# Tool calling with reasoning
-from blackbox import Tool, ReasoningConfig
+# Streaming
+for chunk in wc.chat_stream("Write a poem"):
+    print(chunk, end="")
 
+# File chat
+result = wc.chat_with_file("report.pdf", "Summarize this")
+
+# API key usage
+from blackbox import BlackBoxClient, Tool, ReasoningConfig
+
+client = BlackBoxClient(api_key="sk-...")
 tools = [Tool(type="function", function={
     "name": "get_weather",
     "description": "Get weather for a city",
@@ -94,11 +132,11 @@ result = client.chat_complete(
     reasoning=ReasoningConfig(effort="medium"),
 )
 
-# File chat with local file
-result = client.chat_with_file("document.pdf", "Summarize this")
-print(result.content)
+# Image generation (API key)
+img = client.generate_image("a cat in space", model="flux-pro")
+print(img.data[0].url)
 
-# Multi-agent task
+# Multi-agent task (API key)
 from blackbox import AgentTaskConfig
 task = client.create_multi_agent_task(
     prompt="Add README in Spanish",
@@ -109,48 +147,32 @@ task = client.create_multi_agent_task(
 )
 ```
 
-## Web Auth
-
-```python
-from blackbox import WebChat
-
-# Login with email/password
-wc = WebChat.login(email="user@example.com", password="...")
-result = wc.chat("Hello from web")
-print(result.content)
-
-# Or with BlackBoxClient
-client = BlackBoxClient(session_token="...", validated="a38f5889-...")
-session = client.get_session()
-credits = client.get_credits()
-```
-
 ## CLI
 
 ```bash
-# API key commands
-python -m blackbox --api-key "sk-..." chat "Hello" --model anthropic/claude-sonnet-4.5
-python -m blackbox --api-key "sk-..." search "latest AI news"
-python -m blackbox --api-key "sk-..." image "a cat" --model flux-pro
-python -m blackbox --api-key "sk-..." video "drone shot" --model veo-2
-python -m blackbox --api-key "sk-..." code "quicksort in python"
-
-# Web chat
-python -m blackbox webchat "Hello"
+# Cookies (no API key)
+python -m blackbox webchat "Hello!"
 python -m blackbox websearch "AI news"
+python -m blackbox webcode "quicksort in python"
 python -m blackbox login --email user@example.com
+
+# API key
+python -m blackbox --api-key "sk-..." chat "Hello"
+python -m blackbox --api-key "sk-..." search "latest AI news"
+python -m blackbox --api-key "sk-..." image "a cat"
+python -m blackbox --api-key "sk-..." video "drone shot"
 ```
 
 ## Docs
 
 | | |
 |---|---|
-| <img src="media/icon.svg" width="18" align="center"> [Chat Completions](src/blackbox/chat.py) | Full OpenAI-compatible API with all 30+ parameters, streaming, tool calling |
-| <img src="media/icon.svg" width="18" align="center"> [Web Auth](src/blackbox/login.py) | NextAuth.js login flow — action hash discovery, RSC parsing, session extraction |
-| <img src="media/icon.svg" width="18" align="center"> [Web Chat](src/blackbox/webchat.py) | Browser-session chat at `app.blackbox.ai/api/chat` with SSE streaming |
-| <img src="media/icon.svg" width="18" align="center"> [File Upload](src/blackbox/files.py) | Base64 file encoding, MIME detection, chat-with-file utility |
+| <img src="media/icon.svg" width="18" align="center"> [Web Chat](src/blackbox/webchat.py) | Browser-session chat, SSE streaming, all mode flags |
+| <img src="media/icon.svg" width="18" align="center"> [Web Auth / Login](src/blackbox/login.py) | NextAuth flow — action hash, RSC parsing, session extraction |
+| <img src="media/icon.svg" width="18" align="center"> [File Upload](src/blackbox/files.py) | Base64 file encoding, MIME detection, chat-with-file |
+| <img src="media/icon.svg" width="18" align="center"> [Chat Completions](src/blackbox/chat.py) | Full OpenAI-compatible API, all 30+ params, tool calling |
 | <img src="media/icon.svg" width="18" align="center"> [Agent API](src/blackbox/agents.py) | Single-agent CRUD + multi-agent task orchestration |
-| <img src="media/icon.svg" width="18" align="center"> [Models & Pricing](src/blackbox/models.py) | All data classes, constants, 24-entry MODEL_PRICING |
+| <img src="media/icon.svg" width="18" align="center"> [Models & Pricing](src/blackbox/models.py) | Data classes, constants, MODEL_PRICING table |
 
 ## Project
 
@@ -159,11 +181,11 @@ src/blackbox/
 ├── __init__.py    # Public API exports
 ├── __main__.py    # python -m blackbox
 ├── cli.py         # CLI entry point
-├── client.py      # BlackBoxClient — unified interface
+├── client.py      # BlackBoxClient — API key interface
+├── webchat.py     # Web endpoint — cookie auth
 ├── login.py       # NextAuth login (curl_cffi)
-├── webchat.py     # app.blackbox.ai/api/chat (curl_cffi)
-├── chat.py        # API chat completions (httpx)
 ├── files.py       # File upload utilities
+├── chat.py        # API chat completions (httpx)
 ├── auth.py        # Web authentication helpers
 ├── image.py       # Image generation
 ├── code.py        # Code generation
@@ -174,4 +196,4 @@ src/blackbox/
 
 ## License
 
-MIT &copy; [black-box-unoffcial-api](https://github.com/anomalyco/black-box-unoffcial-api)
+MIT &copy; [etrnkz](https://github.com/etrnkz/black-box-unoffcial-api)
