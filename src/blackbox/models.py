@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-
 # --- Content Parts ---
 
 @dataclass
@@ -17,7 +16,14 @@ class TextContentPart:
     text: str = ""
 
 
-ContentPart = TextContentPart | ImageContentPart
+@dataclass
+class FileContentPart:
+    type: str = "file"
+    filename: str = ""
+    file_data: str = ""
+
+
+ContentPart = TextContentPart | ImageContentPart | FileContentPart
 
 
 # --- Messages ---

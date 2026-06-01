@@ -18,8 +18,8 @@ from .models import (
     ToolCall,
     ToolCallFunction,
     ToolChoice,
-    Usage,
     UrlCitation,
+    Usage,
 )
 
 
@@ -46,10 +46,20 @@ class Chat:
                         (
                             {"type": "text", "text": p.text}
                             if hasattr(p, "text")
-                            else {
-                                "type": "image_url",
-                                "image_url": {"url": p.image_url},
-                            }
+                            else (
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": p.image_url},
+                                }
+                                if hasattr(p, "image_url")
+                                else {
+                                    "type": "file",
+                                    "file": {
+                                        "filename": p.filename,
+                                        "file_data": p.file_data,
+                                    },
+                                }
+                            )
                         )
                         for p in m.content
                     ]
@@ -121,7 +131,9 @@ class Chat:
             completion_tokens=u.get("completion_tokens", 0),
             total_tokens=u.get("total_tokens", 0),
             completion_tokens_details=CompletionTokensDetails(**details) if details else None,
-            prompt_tokens_details=PromptTokensDetails(**u.get("prompt_tokens_details", {})) if u.get("prompt_tokens_details") else None,
+            prompt_tokens_details=PromptTokensDetails(**u.get("prompt_tokens_details", {}))
+            if u.get("prompt_tokens_details")
+            else None,
             cost=u.get("cost"),
             is_byok=u.get("is_byok"),
             cost_details=CostDetails(**u.get("cost_details", {})) if u.get("cost_details") else None,

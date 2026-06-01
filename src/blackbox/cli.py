@@ -2,7 +2,28 @@ import argparse
 import sys
 
 from .client import BlackBoxClient
-from .models import AgentConfig, AgentTaskConfig, ChatMessage, ReasoningConfig, Tool, ToolChoice
+from .login import LoginError, login
+from .models import AgentConfig, AgentTaskConfig, ChatMessage
+
+
+def cmd_login(args):
+    try:
+        import getpass
+        password = args.password or getpass.getpass("Password: ")
+        result = login(
+            email=args.email,
+            password=password,
+        )
+        result["session"].close()
+        print("Login successful!")
+        print(f"Session token: {result['session_token'][:60]}...")
+        print(f"User email: {result['user_email'] or 'N/A'}")
+        print(f"User ID: {result['user_id'] or 'N/A'}")
+        print("\nCookie header (use with --cookie-header):")
+        print(result["cookie_header"])
+    except LoginError as e:
+        print(f"Login failed: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 def cmd_auth(args):
@@ -50,9 +71,10 @@ def cmd_chat(args):
         result = client.chat_complete(messages, model=args.model, **kwargs)
 
         if result.usage:
-            print(f"\n[{result.usage.prompt_tokens} prompt / {result.usage.completion_tokens} completion / {result.usage.total_tokens} total tokens]")
-            if result.usage.cost is not None:
-                print(f"[Cost: ${result.usage.cost:.6f}]")
+            u = result.usage
+            print(f"\n[{u.prompt_tokens} prompt / {u.completion_tokens} completion / {u.total_tokens} total tokens]")
+            if u.cost is not None:
+                print(f"[Cost: ${u.cost:.6f}]")
         print(f"\n{result.content}")
 
 
@@ -71,6 +93,19 @@ def cmd_search(args):
                         title = ann.url_citation.title or "Untitled"
                         url = ann.url_citation.url
                         print(f"  {title}: {url}")
+
+
+def cmd_filechat(args):
+    with BlackBoxClient(api_key=getattr(args, "api_key", None)) as client:
+        result = client.chat_with_file(
+            filepath=args.file,
+            prompt=args.prompt,
+            model=args.model,
+        )
+        if result.usage:
+            u = result.usage
+            print(f"\n[{u.prompt_tokens} prompt / {u.completion_tokens} completion / {u.total_tokens} tokens]")
+        print(f"\n{result.content}")
 
 
 def cmd_code(args):
@@ -252,6 +287,12 @@ def main(argv: list[str] | None = None):
 
     sub = parser.add_subparsers(dest="command")
 
+    # --- login ---
+    login_p = sub.add_parser("login", help="Login to app.blackbox.ai with email/password")
+    login_p.add_argument("--email", required=True, help="Email address")
+    login_p.add_argument("--password", help="Password (will prompt if omitted)")
+    login_p.add_argument("--cookie-header", help="Initial cookie header (optional)")
+
     # --- auth ---
     auth_p = sub.add_parser("auth", help="Authentication commands")
     auth_p.add_argument("action", choices=["csrf", "login", "session", "verify", "send-verification"])
@@ -277,6 +318,12 @@ def main(argv: list[str] | None = None):
     agent_p.add_argument("--agents", help="Comma-separated agent:model pairs (for task)")
     agent_p.add_argument("--repo-url", help="GitHub repo URL (for task)")
     agent_p.add_argument("--branch", help="GitHub branch (for task)")
+
+    # --- filechat ---
+    fchat_p = sub.add_parser("filechat", help="Chat with a file")
+    fchat_p.add_argument("file", help="Path to file")
+    fchat_p.add_argument("prompt", help="Question about the file")
+    fchat_p.add_argument("--model", default="blackbox", help="Model to use")
 
     # --- chat ---
     chat_p = sub.add_parser("chat", help="Chat completion")
@@ -341,7 +388,9 @@ def main(argv: list[str] | None = None):
     args = parser.parse_args(argv)
 
     handlers = {
+        "login": cmd_login,
         "auth": cmd_auth,
+        "filechat": cmd_filechat,
         "credits": cmd_credits,
         "models": cmd_models,
         "agent": cmd_agent,

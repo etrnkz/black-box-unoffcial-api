@@ -1,4 +1,6 @@
 from .client import BlackBoxClient
+from .files import chat_with_file, read_file
+from .login import LoginError, login
 from .models import (
     AgentConfig,
     AgentExecution,
@@ -10,6 +12,7 @@ from .models import (
     CodeGenerationResponse,
     ContentPart,
     CreditInfo,
+    FileContentPart,
     ImageContentPart,
     ImageData,
     ImageGenerationResponse,
@@ -23,9 +26,9 @@ from .models import (
     Tool,
     ToolCall,
     ToolChoice,
+    UrlCitation,
     Usage,
     VideoGenerationResponse,
-    UrlCitation,
 )
 from .webchat import WebChat, WebChatResponse
 
@@ -38,16 +41,21 @@ __all__ = [
     "Annotation",
     "ChatCompletion",
     "ChatMessage",
+    "chat_with_file",
     "CodeGenerationResponse",
     "ContentPart",
     "CreditInfo",
+    "FileContentPart",
     "ImageContentPart",
     "ImageData",
     "ImageGenerationResponse",
+    "login",
+    "LoginError",
     "ModelInfo",
     "ModelPricing",
     "MultiAgentTask",
     "ProviderPreferences",
+    "read_file",
     "ReasoningConfig",
     "SessionInfo",
     "TextContentPart",
@@ -55,8 +63,8 @@ __all__ = [
     "ToolCall",
     "ToolChoice",
     "Usage",
-    "VideoGenerationResponse",
     "UrlCitation",
+    "VideoGenerationResponse",
     "WebChat",
     "WebChatResponse",
 ]

@@ -3,7 +3,9 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-import httpx
+from curl_cffi.requests import Session as CurlSession
+
+from .login import login as _login
 
 
 @dataclass
@@ -20,23 +22,12 @@ class WebChat:
 
     def __init__(
         self,
-        cookie_header: Optional[str] = None,
+        session: Optional[CurlSession] = None,
         validated: Optional[str] = None,
         user_email: Optional[str] = None,
         user_id: Optional[str] = None,
     ):
-        self._client = httpx.Client(
-            timeout=120.0,
-            headers={
-                "user-agent": (
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/148.0.0.0 Safari/537.36"
-                ),
-            },
-            follow_redirects=True,
-        )
-        self._cookie_header = cookie_header
+        self._session = session or CurlSession(impersonate="chrome142")
         self._validated = validated or str(uuid.uuid4())
         self._user_email = user_email
         self._user_id = user_id
@@ -141,7 +132,7 @@ class WebChat:
         }
 
     def _chat_headers(self) -> dict[str, str]:
-        headers = {
+        return {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9",
             "cache-control": "no-cache",
@@ -157,9 +148,6 @@ class WebChat:
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
         }
-        if self._cookie_header:
-            headers["cookie"] = self._cookie_header
-        return headers
 
     def _parse_sse(self, text: str) -> WebChatResponse:
         result = WebChatResponse()
@@ -225,7 +213,7 @@ class WebChat:
             interpreter=interpreter,
             max_tokens=max_tokens,
         )
-        resp = self._client.post(
+        resp = self._session.post(
             f"{self.APP_URL}/api/chat",
             json=body,
             headers=self._chat_headers(),
@@ -263,7 +251,7 @@ class WebChat:
             interpreter=interpreter,
             max_tokens=max_tokens,
         )
-        with self._client.stream(
+        with self._session.stream(
             "POST",
             f"{self.APP_URL}/api/chat",
             headers=self._chat_headers(),
@@ -321,8 +309,25 @@ class WebChat:
     ) -> WebChatResponse:
         return self.chat(prompt, model=model, agent="VideoGenAgent")
 
+    @classmethod
+    def login(
+        cls,
+        email: str,
+        password: str,
+        validated: str = "",
+    ) -> "WebChat":
+        result = _login(email=email, password=password)
+        instance = cls(
+            session=result["session"],
+            validated=validated,
+            user_email=result.get("user_email"),
+            user_id=result.get("user_id"),
+        )
+        instance._result = result
+        return instance
+
     def close(self):
-        self._client.close()
+        self._session.close()
 
     def __enter__(self):
         return self

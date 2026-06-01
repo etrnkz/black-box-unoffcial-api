@@ -1,14 +1,16 @@
 from typing import Any, Optional
 
 import httpx
+from curl_cffi.requests import Session as CurlSession
 
 from .agents import Agents
 from .auth import Auth
 from .chat import Chat
 from .code import CodeGen
 from .credits import Credits
+from .files import chat_with_file as _chat_with_file
 from .image import ImageGen
-from .webchat import WebChat, WebChatResponse
+from .login import login as _login
 from .models import (
     AgentConfig,
     AgentExecution,
@@ -29,6 +31,7 @@ from .models import (
     ToolChoice,
     VideoGenerationResponse,
 )
+from .webchat import WebChat, WebChatResponse
 
 
 class BlackBoxClient:
@@ -39,6 +42,7 @@ class BlackBoxClient:
         validated: Optional[str] = None,
         user_email: Optional[str] = None,
         user_id: Optional[str] = None,
+        web_session: Optional[CurlSession] = None,
         timeout: float = 30.0,
         proxy: Optional[str] = None,
     ):
@@ -47,6 +51,7 @@ class BlackBoxClient:
         self._validated = validated
         self._user_email = user_email
         self._user_id = user_id
+        self._web_session = web_session
 
         transport = None
         if proxy:
@@ -74,7 +79,14 @@ class BlackBoxClient:
         self.credits = Credits(self._http)
         self.agents = Agents(self._http, api_key)
 
-    def login(self, token: str, email: str) -> dict[str, Any]:
+    def login(self, email: str, password: str) -> dict[str, Any]:
+        result = _login(email=email, password=password)
+        self._web_session = result["session"]
+        self._user_email = result.get("user_email")
+        self._user_id = result.get("user_id")
+        return result
+
+    def login_with_token(self, token: str, email: str) -> dict[str, Any]:
         return self.auth.login_with_token(token, email)
 
     def send_verification(self, email: str) -> dict[str, Any]:
@@ -231,6 +243,16 @@ class BlackBoxClient:
             system_prompt=system_prompt,
         )
 
+    # --- File Chat ---
+
+    def chat_with_file(
+        self,
+        filepath: str,
+        prompt: str,
+        model: Optional[str] = None,
+    ) -> ChatCompletion:
+        return _chat_with_file(self.chat, filepath=filepath, prompt=prompt, model=model)
+
     # --- Video Generation ---
 
     def generate_video(
@@ -307,12 +329,14 @@ class BlackBoxClient:
     # --- Web Chat (app.blackbox.ai/api/chat) ---
 
     def _webchat_kwargs(self) -> dict:
-        return {
-            "cookie_header": self._cookie_header,
+        kwargs = {
             "validated": self._validated,
             "user_email": self._user_email,
             "user_id": self._user_id,
         }
+        if self._web_session:
+            kwargs["session"] = self._web_session
+        return kwargs
 
     def web_chat(
         self,
