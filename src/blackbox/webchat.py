@@ -5,6 +5,7 @@ from typing import Any, Optional
 
 from curl_cffi.requests import Session as CurlSession
 
+from .files import read_file
 from .login import login as _login
 
 
@@ -23,11 +24,14 @@ class WebChat:
     def __init__(
         self,
         session: Optional[CurlSession] = None,
+        cookie_header: Optional[str] = None,
         validated: Optional[str] = None,
         user_email: Optional[str] = None,
         user_id: Optional[str] = None,
     ):
         self._session = session or CurlSession(impersonate="chrome142")
+        if cookie_header and not session:
+            self.set_cookie_header(cookie_header)
         self._validated = validated or str(uuid.uuid4())
         self._user_email = user_email
         self._user_id = user_id
@@ -325,6 +329,23 @@ class WebChat:
         )
         instance._result = result
         return instance
+
+    def set_cookie_header(self, header: str):
+        for pair in header.split(";"):
+            pair = pair.strip()
+            if "=" in pair:
+                key, val = pair.split("=", 1)
+                self._session.cookies.set(key.strip(), val.strip())
+
+    def chat_with_file(
+        self,
+        filepath: str,
+        prompt: str,
+        model: Optional[str] = None,
+    ) -> "WebChatResponse":
+        data_uri, filename, _ = read_file(filepath)
+        msg = f"[File: {filename}]\n{data_uri}\n\n{prompt}"
+        return self.chat(msg, model=model)
 
     def close(self):
         self._session.close()
