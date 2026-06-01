@@ -143,4 +143,4 @@ src/blackbox/
 
 ## License
 
-MIT &copy; [etrnkz](https://github.com/etrnkz/black-box-unoffcial-api)
+MIT &copy; [Elphador](https://github.com/etrnkz/black-box-unoffcial-api)
