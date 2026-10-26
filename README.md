@@ -1,105 +1,124 @@
 # blackbox-unofficial-api
 
-> Unofficial Python API client and CLI for **Blackbox AI** (`blackbox.ai`).
+> Python client, CLI, and Cloudflare Turnstile VM challenge solver for **Blackbox AI** (`blackbox.ai`).
+
+---
+
+## Highlights
+
+- **Dual Backend Support**:
+  - **Enterprise Gateway**: Full OpenAI-compatible chat completions (`https://enterprise.blackbox.ai/v1`).
+  - **Web Session Client**: Browser cookie-based session automation with anti-bot bypass.
+- **Embedded Turnstile VM Solver**: Native Python port of the Cloudflare/OpenAI Sentinel Turnstile bytecode decompiler and challenge virtual machine.
+- **Streaming & Multi-Model**: Full SSE streaming response parsing across code, chat, reasoning, and image generation modes.
+- **Developer CLI**: Terminal commands for chatting, search, code synthesis, and session inspection.
 
 ---
 
 ## Installation
 
 ```bash
-pip install blackbox-unofficial-api
+pip install -e .
+```
+
+Or install dependencies directly:
+```bash
+pip install httpx curl-cffi
 ```
 
 ---
 
-## Quick Start
+## Quickstart
 
-**Chat — zero setup, just cookies from your browser:**
+### 1. Enterprise Mode (API Key)
 
-```bash
-python -m blackbox --cookie "session=abc; next-auth.session-token=xyz" chat "What is the capital of France?"
+```python
+from blackbox import BlackBoxClient
+
+client = BlackBoxClient(api_key="your-blackbox-api-key")
+
+# Standard chat completion
+completion = client.chat.complete([
+    {"role": "user", "content": "Write an async HTTP server in Rust using Tokio and Axum"}
+], model="blackboxai/anthropic/claude-sonnet-4.5")
+
+print(completion.choices[0].message.content)
 ```
+
+### 2. Browser Session Mode (WebChat)
+
+Blackbox web endpoints require session cookies from an active browser session. Copy your cookie string from DevTools (`app.blackbox.ai` -> Network tab -> `Cookie` header):
 
 ```python
 from blackbox import WebChat
 
-# Paste cookies from app.blackbox.ai → DevTools → Network tab
-wc = WebChat(cookie_header="session=abc; next-auth.session-token=xyz; ...")
+wc = WebChat(cookie_header="sessionId=...; __Secure-authjs.callback-url=...")
 
-result = wc.chat("What is the capital of France?")
-print(result.content)
+# Ask a question
+response = wc.chat("Explain Raft consensus in simple terms")
+print(response.content)
+
+# Web search with source citations
+search_res = wc.search("Latest developments in quantum error correction")
+print(search_res.content)
+for src in search_res.sources:
+    print(f"- {src['title']}: {src['url']}")
+
+# Code generation
+code_res = wc.generate_code("A thread-safe circular buffer in C++20")
+print(code_res.content)
 ```
 
-**Or login with email/password (gets cookies automatically):**
+### 3. Turnstile Bytecode Solver (`TurnstileVM`)
+
+To solve Cloudflare / Sentinel challenge tokens programmatically:
 
 ```python
-wc = WebChat.login(email="user@example.com", password="your-password")
-result = wc.chat("Explain quantum computing")
+from blackbox.turnstile import TurnstileVM
+
+# Solve incoming Turnstile bytecode challenge
+token = TurnstileVM.generate_turnstile(
+    turnstile_dx="<BASE64_BYTECODE>",
+    token="<CHALLENGE_TOKEN>",
+    location_url="https://app.blackbox.ai/"
+)
+
+headers = {
+    "openai-sentinel-turnstile-token": token
+}
 ```
 
-**That's it. No API key. No token. Just the website.**
+---
 
-## Usage
-
-```python
-from blackbox import WebChat
-
-wc = WebChat(cookie_header="...")
-
-# Chat
-r = wc.chat("Hello")
-r = wc.chat_stream("Write a poem")  # generator
-for chunk in r:
-    print(chunk, end="")
-
-# Search
-r = wc.search("latest Python news")
-for s in r.sources:
-    print(f"  {s['title']}: {s['url']}")
-
-# Code
-r = wc.generate_code("quicksort", language="python")
-
-# Image
-r = wc.generate_image("a cat in space")
-
-# Video
-r = wc.generate_video("drone over mountains")
-
-# File
-r = wc.chat_with_file("document.pdf", "Summarize this")
-
-# Reasoning
-r = wc.chat("Solve this math problem", reasoning=True)
-
-# Login
-wc = WebChat.login(email="user@example.com", password="...")
-r = wc.chat("Hello after login")
-```
-
-## Commands
+## CLI Reference
 
 ```bash
-# All work without any API key — just --cookie or login
+# Chat using session cookies
+blackbox --cookie "sessionId=..." chat "Write a binary search algorithm in Go"
 
-python -m blackbox login --email user@example.com   # login, prints cookie header
-python -m blackbox --cookie "..." chat "Hello"       # chat
-python -m blackbox --cookie "..." search "AI news"   # web search
-python -m blackbox --cookie "..." code "quicksort"   # code generation
-python -m blackbox --cookie "..." image "a cat"      # image generation
-python -m blackbox --cookie "..." video "drone"      # video generation
-python -m blackbox --cookie "..." file doc.pdf "Summarize"  # file chat
-python -m blackbox --cookie "..." reason "solve x"   # reasoning mode
+# Deep web search
+blackbox --cookie "sessionId=..." search "What is eBPF and how does it work?" --deep
+
+# Code synthesis
+blackbox --cookie "sessionId=..." code "LRU cache implementation" --language python
+
+# Reasoning mode
+blackbox --cookie "sessionId=..." reason "Solve this logic riddle"
 ```
 
-## Auth
+---
 
-| Method | How it works |
-|--------|-------------|
-| Browser cookies | Open app.blackbox.ai → DevTools → Network → copy `Cookie` header from any request. Pass with `--cookie "..."` or `cookie_header="..."` |
-| Email login | `WebChat.login(email, password)` — logs in programmatically, stores cookies in session |
-| Validated UUID | Some features need a `validated` UUID. Extract from DevTools once — per-account, not per-session |
+## Architecture & Endpoints
+
+| Service | Target Gateway | Protocol |
+| :--- | :--- | :--- |
+| **Enterprise Chat** | `https://enterprise.blackbox.ai/v1/chat/completions` | HTTP / OpenAI REST |
+| **Web Sessions** | `https://app.blackbox.ai/api/chat` | HTTP / SSE Stream |
+| **Model Catalog** | `https://enterprise.blackbox.ai/v1/models` | REST |
+| **Anti-Bot Defense** | Cloudflare Turnstile + Bot Management | Solved via `TurnstileVM` |
+
+---
 
 ## License
 
-MIT &copy; [etrnkz](https://github.com/etrnkz/black-box-unoffcial-api)
+MIT License. Reverse-engineered for research and developer interoperability.
