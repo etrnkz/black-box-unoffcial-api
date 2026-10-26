@@ -6,7 +6,7 @@ from .models import CodeGenerationResponse
 
 
 class CodeGen:
-    BASE_URL = "https://api.blackbox.ai"
+    BASE_URL = "https://enterprise.blackbox.ai/v1"
 
     def __init__(self, client: httpx.Client, api_key: Optional[str] = None):
         self._client = client

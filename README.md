@@ -1,39 +1,18 @@
-<p align="center">
-  <img src="media/banner.svg" alt="BlackBox API — Reverse of Blackbox.ai">
-</p>
+# blackbox-unofficial-api
 
-<p align="center">
-  <img src="https://img.shields.io/badge/python-%3E%3D3.10-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
-  <img src="https://img.shields.io/badge/status-active-success" alt="Active">
-  <img src="https://img.shields.io/badge/PRs-welcome-8A2BE2" alt="PRs Welcome">
-</p>
-
-<p align="center">
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#usage">Usage</a> •
-  <a href="#commands">Commands</a> •
-  <a href="#auth">Auth</a>
-</p>
+> Unofficial Python API client and CLI for **Blackbox AI** (`blackbox.ai`).
 
 ---
 
-<p align="center">
-  <strong>Full reverse of blackbox.ai</strong>
-  <br>
-  No API key. No tokens. No signup required.
-  <br>
-  Just paste your browser cookies or login — and you're in.
-</p>
+## Installation
+
+```bash
+pip install blackbox-unofficial-api
+```
 
 ---
 
 ## Quick Start
-
-```bash
-pip install httpx curl-cffi
-pip install -e .
-```
 
 **Chat — zero setup, just cookies from your browser:**
 

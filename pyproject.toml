@@ -5,17 +5,31 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "blackbox-unofficial-api"
 version = "0.1.0"
-description = "Unofficial Python API client for blackbox.ai"
+description = "Unofficial Python API client and CLI for blackbox.ai"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { text = "MIT" }
+authors = [
+    { name = "etrnkz" }
+]
 requires-python = ">=3.10"
+keywords = ["blackbox", "blackbox-ai", "ai", "llm", "chat-api", "reverse-engineered", "cli"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console"
+]
 dependencies = [
     "httpx>=0.27.0",
-    "curl-cffi>=0.14.0",
+    "curl-cffi>=0.7.0",
 ]
 
 [project.scripts]
 blackbox = "blackbox.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/etrnkz/black-box-unoffcial-api"
+Repository = "https://github.com/etrnkz/black-box-unoffcial-api"
 
 
 [tool.setuptools.packages.find]

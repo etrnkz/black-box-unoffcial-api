@@ -111,7 +111,7 @@ class BlackBoxClient:
 
     def get_models(self) -> list[ModelInfo]:
         resp = self._http.get(
-            "https://api.blackbox.ai/v1/models",
+            "https://enterprise.blackbox.ai/v1/models",
             headers={"authorization": f"Bearer {self.api_key}"} if self.api_key else {},
         )
         resp.raise_for_status()
