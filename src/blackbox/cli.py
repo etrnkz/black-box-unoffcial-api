@@ -89,7 +89,7 @@ def cmd_reason(args):
 def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(
         prog="blackbox",
-        description="Blackbox.ai reverse — no API key needed",
+        description="Blackbox.ai reverse - no API key needed",
     )
     parser.add_argument("--cookie", help="Raw Cookie header from browser DevTools")
     parser.add_argument("--validated", help="Validated UUID (from browser network tab)")
